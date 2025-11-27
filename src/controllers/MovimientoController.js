@@ -1,5 +1,5 @@
 const { Movimiento, Producto, Usuario } = require('../models');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 
 // Registrar un movimiento (entrada, salida o ajuste)
 exports.registrarMovimiento = async (req, res) => {

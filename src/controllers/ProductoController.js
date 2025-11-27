@@ -1,5 +1,5 @@
 const { Producto, Categoria, Proveedor, Movimiento, Usuario } = require('../models');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 
 // Obtener todos los productos con paginación y filtros
 exports.obtenerProductos = async (req, res) => {
