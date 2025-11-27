@@ -4,6 +4,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Importar modelos (esto establece las relaciones)
+const models = require('./models');
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -14,7 +17,14 @@ app.get('/', (req, res) => {
   res.json({
     mensaje: '✅ API Sistema de Gestión de Inventario',
     version: '1.0.0',
-    estado: 'Activo'
+    estado: 'Activo',
+    funcionalidades: [
+      'Gestión de Productos',
+      'Control de Categorías',
+      'Administración de Proveedores',
+      'Control de Stock y Movimientos',
+      'Sistema de Usuarios con Roles'
+    ]
   });
 });
 
