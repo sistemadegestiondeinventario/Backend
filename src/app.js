@@ -36,23 +36,47 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Importar y usar rutas
-const routes = require('./routes');
-app.use('/api', routes);
+// Cargar controladores
+const UsuarioController = require('./controllers/UsuarioController');
+const CategoriaController = require('./controllers/CategoriaController');
+const ProductoController = require('./controllers/ProductoController');
+const ProveedorController = require('./controllers/ProveedorController');
+const MovimientoController = require('./controllers/MovimientoController');
 
-// Manejo de errores global
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Error interno del servidor'
-  });
-});
+// Rutas de usuarios (registro / login)
+app.post('/api/usuarios/register', UsuarioController.registrarUsuario);
+app.post('/api/usuarios/login', UsuarioController.login);
 
-// Ruta 404
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Ruta no encontrada'
-  });
-});
+// Rutas básicas de usuarios (lista/actualizar/desactivar)
+app.get('/api/usuarios', UsuarioController.obtenerUsuarios);
+app.put('/api/usuarios/:id', UsuarioController.actualizarUsuario);
+app.patch('/api/usuarios/:id/desactivar', UsuarioController.desactivarUsuario);
+
+// Categorias
+app.get('/api/categorias', CategoriaController.obtenerCategorias);
+app.get('/api/categorias/:id', CategoriaController.obtenerCategoria);
+app.post('/api/categorias', CategoriaController.crearCategoria);
+app.put('/api/categorias/:id', CategoriaController.actualizarCategoria);
+app.delete('/api/categorias/:id', CategoriaController.eliminarCategoria);
+app.get('/api/categorias/:id/productos', CategoriaController.obtenerProductosPorCategoria);
+
+// Proveedores
+app.get('/api/proveedores', require('./controllers/ProveedorController').obtenerProveedores);
+app.get('/api/proveedores/:id', require('./controllers/ProveedorController').obtenerProveedor);
+app.post('/api/proveedores', require('./controllers/ProveedorController').crearProveedor);
+app.put('/api/proveedores/:id', require('./controllers/ProveedorController').actualizarProveedor);
+app.delete('/api/proveedores/:id', require('./controllers/ProveedorController').desactivarProveedor);
+
+// Productos
+app.get('/api/productos', ProductoController.obtenerProductos);
+app.get('/api/productos/:id', ProductoController.obtenerProducto);
+app.post('/api/productos', ProductoController.crearProducto);
+app.put('/api/productos/:id', ProductoController.actualizarProducto);
+app.delete('/api/productos/:id', ProductoController.eliminarProducto);
+app.get('/api/productos/alertas/stock', ProductoController.obtenerAlertasStock);
+
+// Movimientos
+app.get('/api/movimientos', require('./controllers/MovimientoController').obtenerMovimientos || ((req, res) => res.status(501).json({ error: 'No implementado' })));
+app.post('/api/movimientos', require('./controllers/MovimientoController').registrarMovimiento || ((req, res) => res.status(501).json({ error: 'No implementado' })));
 
 module.exports = app;

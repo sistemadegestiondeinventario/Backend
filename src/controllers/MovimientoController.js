@@ -1,4 +1,5 @@
-const MovimientoService = require('../services/MovimientoService');
+const { Movimiento, Producto, Usuario } = require('../models');
+const { Op, Sequelize } = require('sequelize');
 
 exports.registrar = async (req, res) => {
     try {

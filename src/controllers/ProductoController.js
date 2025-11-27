@@ -1,4 +1,5 @@
-const ProductoService = require('../services/ProductoService');
+const { Producto, Categoria, Proveedor, Movimiento, Usuario } = require('../models');
+const { Op, Sequelize } = require('sequelize');
 
 exports.obtenerTodos = async (req, res) => {
     try {
