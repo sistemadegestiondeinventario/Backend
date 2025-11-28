@@ -43,40 +43,38 @@ const ProductoController = require('./controllers/ProductoController');
 const ProveedorController = require('./controllers/ProveedorController');
 const MovimientoController = require('./controllers/MovimientoController');
 
-// Rutas de usuarios (registro / login)
-app.post('/api/usuarios/register', UsuarioController.registrarUsuario);
+// RUTAS DE USUARIOS 
+app.post('/api/usuarios/register', UsuarioController.registrar);
 app.post('/api/usuarios/login', UsuarioController.login);
+app.get('/api/usuarios', UsuarioController.obtenerTodos);
+app.get('/api/usuarios/:id', UsuarioController.obtenerPorId);
+app.put('/api/usuarios/:id', UsuarioController.actualizar);
+app.delete('/api/usuarios/:id', UsuarioController.eliminar);
 
-// Rutas básicas de usuarios (lista/actualizar/desactivar)
-app.get('/api/usuarios', UsuarioController.obtenerUsuarios);
-app.put('/api/usuarios/:id', UsuarioController.actualizarUsuario);
-app.patch('/api/usuarios/:id/desactivar', UsuarioController.desactivarUsuario);
+// RUTAS DE CATEGORÍAS 
+app.get('/api/categorias', CategoriaController.obtenerTodos);
+app.get('/api/categorias/:id', CategoriaController.obtenerPorId);
+app.post('/api/categorias', CategoriaController.crear);
+app.put('/api/categorias/:id', CategoriaController.actualizar);
+app.delete('/api/categorias/:id', CategoriaController.eliminar);
 
-// Categorias
-app.get('/api/categorias', CategoriaController.obtenerCategorias);
-app.get('/api/categorias/:id', CategoriaController.obtenerCategoria);
-app.post('/api/categorias', CategoriaController.crearCategoria);
-app.put('/api/categorias/:id', CategoriaController.actualizarCategoria);
-app.delete('/api/categorias/:id', CategoriaController.eliminarCategoria);
-app.get('/api/categorias/:id/productos', CategoriaController.obtenerProductosPorCategoria);
+//  RUTAS DE PROVEEDORES 
+app.get('/api/proveedores', ProveedorController.obtenerTodos);
+app.get('/api/proveedores/:id', ProveedorController.obtenerPorId);
+app.post('/api/proveedores', ProveedorController.crear);
+app.put('/api/proveedores/:id', ProveedorController.actualizar);
+app.delete('/api/proveedores/:id', ProveedorController.eliminar);
 
-// Proveedores
-app.get('/api/proveedores', require('./controllers/ProveedorController').obtenerProveedores);
-app.get('/api/proveedores/:id', require('./controllers/ProveedorController').obtenerProveedor);
-app.post('/api/proveedores', require('./controllers/ProveedorController').crearProveedor);
-app.put('/api/proveedores/:id', require('./controllers/ProveedorController').actualizarProveedor);
-app.delete('/api/proveedores/:id', require('./controllers/ProveedorController').desactivarProveedor);
+// RUTAS DE PRODUCTOS 
+app.get('/api/productos', ProductoController.obtenerTodos);
+app.get('/api/productos/:id', ProductoController.obtenerPorId);
+app.post('/api/productos', ProductoController.crear);
+app.put('/api/productos/:id', ProductoController.actualizar);
+app.delete('/api/productos/:id', ProductoController.eliminar);
 
-// Productos
-app.get('/api/productos', ProductoController.obtenerProductos);
-app.get('/api/productos/:id', ProductoController.obtenerProducto);
-app.post('/api/productos', ProductoController.crearProducto);
-app.put('/api/productos/:id', ProductoController.actualizarProducto);
-app.delete('/api/productos/:id', ProductoController.eliminarProducto);
-app.get('/api/productos/alertas/stock', ProductoController.obtenerAlertasStock);
-
-// Movimientos
-app.get('/api/movimientos', require('./controllers/MovimientoController').obtenerMovimientos || ((req, res) => res.status(501).json({ error: 'No implementado' })));
-app.post('/api/movimientos', require('./controllers/MovimientoController').registrarMovimiento || ((req, res) => res.status(501).json({ error: 'No implementado' })));
+// RUTAS DE MOVIMIENTOS 
+app.get('/api/movimientos', MovimientoController.obtenerTodos);
+app.get('/api/movimientos/:id', MovimientoController.obtenerPorId);
+app.post('/api/movimientos', MovimientoController.registrar);
 
 module.exports = app;
