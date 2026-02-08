@@ -1,7 +1,6 @@
-const { Producto, Categoria, Proveedor, Movimiento, Usuario } = require('../models');
-const { Op, Sequelize } = require('sequelize');
+const ProductoService = require('../services/ProductoService');
 
-exports.obtenerTodos = async (req, res) => {
+exports.obtenerProductos = async (req, res) => {
     try {
         const resultado = await ProductoService.obtenerTodos(req.query);
         res.json(resultado);
@@ -10,7 +9,7 @@ exports.obtenerTodos = async (req, res) => {
     }
 };
 
-exports.obtenerPorId = async (req, res) => {
+exports.obtenerProducto = async (req, res) => {
     try {
         const producto = await ProductoService.obtenerPorId(req.params.id);
         res.json(producto);
@@ -19,7 +18,7 @@ exports.obtenerPorId = async (req, res) => {
     }
 };
 
-exports.crear = async (req, res) => {
+exports.crearProducto = async (req, res) => {
     try {
         const producto = await ProductoService.crear(req.body);
         res.status(201).json(producto);
@@ -28,7 +27,7 @@ exports.crear = async (req, res) => {
     }
 };
 
-exports.actualizar = async (req, res) => {
+exports.actualizarProducto = async (req, res) => {
     try {
         const producto = await ProductoService.actualizar(req.params.id, req.body);
         res.json(producto);
@@ -37,9 +36,28 @@ exports.actualizar = async (req, res) => {
     }
 };
 
-exports.eliminar = async (req, res) => {
+exports.eliminarProducto = async (req, res) => {
     try {
         const resultado = await ProductoService.eliminar(req.params.id);
+        res.json(resultado);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
+
+exports.obtenerAlertasStock = async (req, res) => {
+    try {
+        const alertas = await ProductoService.obtenerAlertasStock();
+        res.json(alertas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.obtenerHistorialProducto = async (req, res) => {
+    try {
+        const { pagina = 1, limite = 20, tipo_movimiento } = req.query;
+        const resultado = await ProductoService.obtenerHistorialProducto(req.params.id, { pagina, limite, tipo_movimiento });
         res.json(resultado);
     } catch (error) {
         res.status(404).json({ error: error.message });

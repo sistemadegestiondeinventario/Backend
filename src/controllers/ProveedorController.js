@@ -1,6 +1,6 @@
 const ProveedorService = require('../services/ProveedorService');
 
-exports.obtenerTodos = async (req, res) => {
+exports.obtenerProveedores = async (req, res) => {
     try {
         const resultado = await ProveedorService.obtenerTodos(req.query);
         res.json(resultado);
@@ -9,7 +9,7 @@ exports.obtenerTodos = async (req, res) => {
     }
 };
 
-exports.obtenerPorId = async (req, res) => {
+exports.obtenerProveedor = async (req, res) => {
     try {
         const proveedor = await ProveedorService.obtenerPorId(req.params.id);
         res.json(proveedor);
@@ -18,7 +18,7 @@ exports.obtenerPorId = async (req, res) => {
     }
 };
 
-exports.crear = async (req, res) => {
+exports.crearProveedor = async (req, res) => {
     try {
         const proveedor = await ProveedorService.crear(req.body);
         res.status(201).json(proveedor);
@@ -27,7 +27,7 @@ exports.crear = async (req, res) => {
     }
 };
 
-exports.actualizar = async (req, res) => {
+exports.actualizarProveedor = async (req, res) => {
     try {
         const proveedor = await ProveedorService.actualizar(req.params.id, req.body);
         res.json(proveedor);
@@ -36,7 +36,7 @@ exports.actualizar = async (req, res) => {
     }
 };
 
-exports.eliminar = async (req, res) => {
+exports.desactivarProveedor = async (req, res) => {
     try {
         const resultado = await ProveedorService.eliminar(req.params.id);
         res.json(resultado);

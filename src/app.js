@@ -7,12 +7,24 @@ const app = express();
 // Importar modelos (esto establece las relaciones)
 const models = require('./models');
 
+// Importar middlewares
+const { autenticar } = require('./middleware/auth');
+const { verificarRol } = require('./middleware/autorización');
+const { verificarApiKey } = require('./middleware/apiKey');
+const {
+  validarProducto,
+  validarCategoria,
+  validarProveedor,
+  validarMovimiento,
+  manejarErroresValidacion
+} = require('./middleware/validaciones');
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ruta de prueba
+// Ruta de prueba (pública)
 app.get('/', (req, res) => {
   res.json({
     mensaje: '✅ API Sistema de Gestión de Inventario',
@@ -28,7 +40,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Ruta de health check
+// Ruta de health check (pública)
 app.get('/health', (req, res) => {
   res.json({
     estado: 'OK',
@@ -36,47 +48,58 @@ app.get('/health', (req, res) => {
   });
 });
 
+// ============================================
+// APLICAR PROTECCIÓN DE API_KEY A TODAS LAS RUTAS DE API
+// ============================================
+app.use('/api', verificarApiKey);
+
 // Cargar controladores
 const UsuarioController = require('./controllers/UsuarioController');
 const CategoriaController = require('./controllers/CategoriaController');
 const ProductoController = require('./controllers/ProductoController');
 const ProveedorController = require('./controllers/ProveedorController');
 const MovimientoController = require('./controllers/MovimientoController');
+const ReportController = require('./controllers/ReportController');
 
-// Rutas de usuarios (registro / login)
+// Rutas de usuarios (registro / login - públicas)
 app.post('/api/usuarios/register', UsuarioController.registrarUsuario);
 app.post('/api/usuarios/login', UsuarioController.login);
 
-// Rutas básicas de usuarios (lista/actualizar/desactivar)
-app.get('/api/usuarios', UsuarioController.obtenerUsuarios);
-app.put('/api/usuarios/:id', UsuarioController.actualizarUsuario);
-app.patch('/api/usuarios/:id/desactivar', UsuarioController.desactivarUsuario);
+// Rutas básicas de usuarios (lista/actualizar/desactivar - protegidas)
+app.get('/api/usuarios', autenticar, verificarRol('administrador'), UsuarioController.obtenerUsuarios);
+app.put('/api/usuarios/:id', autenticar, UsuarioController.actualizarUsuario);
+app.patch('/api/usuarios/:id/desactivar', autenticar, verificarRol('administrador'), UsuarioController.desactivarUsuario);
 
-// Categorias
+// Categorias (lectura pública, escritura protegida)
 app.get('/api/categorias', CategoriaController.obtenerCategorias);
 app.get('/api/categorias/:id', CategoriaController.obtenerCategoria);
-app.post('/api/categorias', CategoriaController.crearCategoria);
-app.put('/api/categorias/:id', CategoriaController.actualizarCategoria);
-app.delete('/api/categorias/:id', CategoriaController.eliminarCategoria);
 app.get('/api/categorias/:id/productos', CategoriaController.obtenerProductosPorCategoria);
+app.post('/api/categorias', autenticar, verificarRol('administrador', 'encargado'), validarCategoria, manejarErroresValidacion, CategoriaController.crearCategoria);
+app.put('/api/categorias/:id', autenticar, verificarRol('administrador', 'encargado'), validarCategoria, manejarErroresValidacion, CategoriaController.actualizarCategoria);
+app.delete('/api/categorias/:id', autenticar, verificarRol('administrador'), CategoriaController.eliminarCategoria);
 
-// Proveedores
-app.get('/api/proveedores', require('./controllers/ProveedorController').obtenerProveedores);
-app.get('/api/proveedores/:id', require('./controllers/ProveedorController').obtenerProveedor);
-app.post('/api/proveedores', require('./controllers/ProveedorController').crearProveedor);
-app.put('/api/proveedores/:id', require('./controllers/ProveedorController').actualizarProveedor);
-app.delete('/api/proveedores/:id', require('./controllers/ProveedorController').desactivarProveedor);
+// Proveedores (lectura pública, escritura protegida)
+app.get('/api/proveedores', ProveedorController.obtenerProveedores);
+app.get('/api/proveedores/:id', ProveedorController.obtenerProveedor);
+app.post('/api/proveedores', autenticar, verificarRol('administrador'), validarProveedor, manejarErroresValidacion, ProveedorController.crearProveedor);
+app.put('/api/proveedores/:id', autenticar, verificarRol('administrador'), validarProveedor, manejarErroresValidacion, ProveedorController.actualizarProveedor);
+app.delete('/api/proveedores/:id', autenticar, verificarRol('administrador'), ProveedorController.desactivarProveedor);
 
-// Productos
+// Productos (lectura pública, escritura protegida)
 app.get('/api/productos', ProductoController.obtenerProductos);
-app.get('/api/productos/:id', ProductoController.obtenerProducto);
-app.post('/api/productos', ProductoController.crearProducto);
-app.put('/api/productos/:id', ProductoController.actualizarProducto);
-app.delete('/api/productos/:id', ProductoController.eliminarProducto);
 app.get('/api/productos/alertas/stock', ProductoController.obtenerAlertasStock);
+app.get('/api/productos/:id', ProductoController.obtenerProducto);
+app.get('/api/productos/:id/movimientos', ProductoController.obtenerHistorialProducto);
+app.post('/api/productos', autenticar, verificarRol('administrador', 'encargado'), validarProducto, manejarErroresValidacion, ProductoController.crearProducto);
+app.put('/api/productos/:id', autenticar, verificarRol('administrador', 'encargado'), validarProducto, manejarErroresValidacion, ProductoController.actualizarProducto);
+app.delete('/api/productos/:id', autenticar, verificarRol('administrador'), ProductoController.eliminarProducto);
 
-// Movimientos
-app.get('/api/movimientos', require('./controllers/MovimientoController').obtenerMovimientos || ((req, res) => res.status(501).json({ error: 'No implementado' })));
-app.post('/api/movimientos', require('./controllers/MovimientoController').registrarMovimiento || ((req, res) => res.status(501).json({ error: 'No implementado' })));
+// Movimientos (protegidas - cualquier usuario autenticado)
+app.get('/api/movimientos', autenticar, MovimientoController.obtenerMovimientos);
+app.post('/api/movimientos', autenticar, validarMovimiento, manejarErroresValidacion, MovimientoController.registrarMovimiento);
+
+// Reportes y Estadísticas (protegidas - usa router con todos los endpoints)
+const reportesRoutes = require('./routes/reportes');
+app.use('/api/reportes', autenticar, reportesRoutes);
 
 module.exports = app;

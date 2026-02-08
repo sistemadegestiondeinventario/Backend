@@ -10,12 +10,20 @@ const autenticar = (req, res, next) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_clave_secreta');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('JWT_SECRET no configurado en variables de entorno');
+            return res.status(500).json({
+                error: 'Error de configuración del servidor'
+            });
+        }
+
+        const decoded = jwt.verify(token, secret);
         req.usuario = decoded;
         next();
     } catch (error) {
         return res.status(401).json({
-            error: 'Token inválido'
+            error: 'Token inválido: ' + error.message
         });
     }
 };

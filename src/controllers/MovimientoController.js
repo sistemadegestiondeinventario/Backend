@@ -1,7 +1,6 @@
-const { Movimiento, Producto, Usuario } = require('../models');
-const { Op, Sequelize } = require('sequelize');
+const MovimientoService = require('../services/MovimientoService');
 
-exports.registrar = async (req, res) => {
+exports.registrarMovimiento = async (req, res) => {
     try {
         const movimiento = await MovimientoService.registrar(req.body);
         res.status(201).json(movimiento);
@@ -10,7 +9,7 @@ exports.registrar = async (req, res) => {
     }
 };
 
-exports.obtenerTodos = async (req, res) => {
+exports.obtenerMovimientos = async (req, res) => {
     try {
         const resultado = await MovimientoService.obtenerTodos(req.query);
         res.json(resultado);
@@ -19,7 +18,7 @@ exports.obtenerTodos = async (req, res) => {
     }
 };
 
-exports.obtenerPorId = async (req, res) => {
+exports.obtenerMovimiento = async (req, res) => {
     try {
         const movimiento = await MovimientoService.obtenerPorId(req.params.id);
         res.json(movimiento);

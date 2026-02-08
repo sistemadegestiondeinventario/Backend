@@ -32,6 +32,25 @@ API RESTful desarrollada en Node.js con Express para la gestión integral de inv
 - Perfil de usuario editable
 - Autenticación con JWT
 
+### ✅ Generación de Reportes
+- **Reportes en JSON**: Estadísticas y análisis de datos estructurados
+- **Reportes en PDF**: Documentos profesionales listos para imprimir
+  - Estadísticas generales con totales
+  - Productos por categoría con precios y stock
+  - Movimientos en rango de fechas
+  - Alertas de stock crítico y mínimo
+- **Reportes en Excel**: Hojas de cálculo para análisis avanzado
+  - Listado completo de productos
+  - Movimientos con filtros de fecha
+  - Alertas de stock en hojas separadas
+  - Estadísticas con gráficos preparados
+
+### ✅ Seguridad
+- Protección de API_KEY en todos los endpoints
+- Tokens JWT con 24 horas de validación
+- Validación de entrada con express-validator
+- Control de roles y permisos granulares
+
 ## 🏗️ Arquitectura
 
 ```

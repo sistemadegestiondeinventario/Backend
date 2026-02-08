@@ -311,11 +311,161 @@ Authorization: Bearer {token}
 
 ---
 
+## Rutas de Reportes - `/api/reportes`
+
+### Reportes JSON (Datos Estructurados)
+
+#### 1. Estadísticas Generales
+```
+GET /api/reportes/json/estadisticas
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Respuesta:
+{
+  "totalProductos": 45,
+  "totalMovimientos": 234,
+  "movimientosPorTipo": {
+    "entrada": 120,
+    "salida": 100,
+    "ajuste": 14
+  }
+}
+```
+
+#### 2. Movimientos por Tipo
+```
+GET /api/reportes/json/movimientos-por-tipo?desde=2024-01-01&hasta=2024-12-31
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Parámetros:
+- desde: Fecha inicio (YYYY-MM-DD) - Requerido
+- hasta: Fecha fin (YYYY-MM-DD) - Requerido
+```
+
+#### 3. Productos Más Movidos
+```
+GET /api/reportes/json/productos-mas-movidos?desde=2024-01-01&hasta=2024-12-31&limite=10
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Parámetros:
+- desde: Fecha inicio (YYYY-MM-DD) - Requerido
+- hasta: Fecha fin (YYYY-MM-DD) - Requerido
+- limite: Cantidad de productos (default: 10)
+```
+
+#### 4. Valor Promedio por Categoría
+```
+GET /api/reportes/json/valor-promedio-categoria
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+```
+
+### Reportes PDF (Documentos Descargables)
+
+#### 1. PDF - Estadísticas Generales
+```
+GET /api/reportes/pdf/estadisticas
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo PDF - estadisticas.pdf
+Contenido: Totales generales, movimientos por tipo, resumen ejecutivo
+```
+
+#### 2. PDF - Productos por Categoría
+```
+GET /api/reportes/pdf/productos-por-categoria
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo PDF - productos-por-categoria.pdf
+Contenido: Productos agrupados, precios, stock, datos de proveedor
+```
+
+#### 3. PDF - Movimientos
+```
+GET /api/reportes/pdf/movimientos?desde=2024-01-01&hasta=2024-12-31
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Parámetros:
+- desde: Fecha inicio (YYYY-MM-DD) - Requerido
+- hasta: Fecha fin (YYYY-MM-DD) - Requerido
+
+Retorna: archivo PDF - movimientos.pdf
+Contenido: Tabla de movimientos, entrada/salida/ajuste, usuario
+```
+
+#### 4. PDF - Alertas de Stock
+```
+GET /api/reportes/pdf/alertas-stock
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo PDF - alertas-stock.pdf
+Contenido: Stock crítico (rojo), mínimo (amarillo), recomendaciones
+```
+
+### Reportes Excel (Hojas de Cálculo)
+
+#### 1. Excel - Productos
+```
+GET /api/reportes/excel/productos
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo XLSX - productos.xlsx
+Contenido: Código, nombre, categoría, proveedor, precios, stocks
+Columnas: 11 (código, nombre, categoría, proveedor, p.compra, p.venta, stock actual, stock mín, stock crit, unidad, ubicación)
+```
+
+#### 2. Excel - Movimientos
+```
+GET /api/reportes/excel/movimientos?desde=2024-01-01&hasta=2024-12-31
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Parámetros:
+- desde: Fecha inicio (YYYY-MM-DD) - Requerido
+- hasta: Fecha fin (YYYY-MM-DD) - Requerido
+
+Retorna: archivo XLSX - movimientos.xlsx
+Contenido: Fecha, producto, tipo, cantidad, usuario, motivo
+Colores: Verde (entrada), Rojo (salida), Azul (ajuste)
+```
+
+#### 3. Excel - Alertas de Stock
+```
+GET /api/reportes/excel/alertas-stock
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo XLSX - alertas-stock.xlsx
+Contenido: 2 hojas (Stock Crítico, Stock Mínimo)
+Colores: Rojo (crítico), Amarillo (mínimo)
+```
+
+#### 4. Excel - Estadísticas
+```
+GET /api/reportes/excel/estadisticas
+Authorization: Bearer {token}
+x-api-key: tu_api_key
+
+Retorna: archivo XLSX - estadisticas.xlsx
+Contenido: Métricas principales, total stock, desglose por tipo de movimiento
+```
+
+---
+
 ## Variables de Entorno Necesarias
 
 ```
 DATABASE_URL=postgresql://usuario:password@localhost:5432/inventario
 JWT_SECRET=tu_clave_secreta_muy_segura
+API_KEY=tu_api_key_muy_segura
 NODE_ENV=development
 PORT=3000
 ```
@@ -327,7 +477,5 @@ PORT=3000
 - 200: OK
 - 201: Creado
 - 400: Solicitud inválida
-- 401: No autenticado
-- 403: Acceso denegado
-- 404: No encontrado
-- 500: Error interno del servidor
+- 401: No autenticado / API_KEY inválida
+- 403: Acceso denegado / Permisos insuficientes
