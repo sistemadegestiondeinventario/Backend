@@ -3,13 +3,24 @@ const MovimientoService = require('../services/MovimientoService');
 exports.registrar = async (req, res) => {
     try {
         // Agregar el usuario_id del token
+        console.log('🔐 Token decodificado:', req.usuario);
+        console.log('📝 Datos del request:', req.body);
+        
+        const usuario_id = req.usuario?.id;
+        if (!usuario_id) {
+            return res.status(400).json({ error: 'Usuario ID no encontrado en el token' });
+        }
+        
         const datos = {
             ...req.body,
-            usuario_id: req.usuario.id
+            usuario_id: usuario_id
         };
+        
+        console.log('💾 Datos a guardar:', datos);
         const movimiento = await MovimientoService.registrar(datos);
         res.status(201).json(movimiento);
     } catch (error) {
+        console.error('❌ Error al registrar movimiento:', error);
         res.status(400).json({ error: error.message });
     }
 };
