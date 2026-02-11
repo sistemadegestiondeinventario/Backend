@@ -125,6 +125,50 @@ class MovimientoService {
             totalPaginas: Math.ceil(count / limite)
         };
     }
+
+    async obtenerAlertasStock() {
+        const productos = await Producto.findAll({
+            where: { activo: true },
+            raw: false
+        });
+
+        const alertas = productos.filter(p => p.stock_actual <= p.stock_minimo).map(p => ({
+            id: p.id,
+            codigo: p.codigo,
+            nombre: p.nombre,
+            stock_actual: p.stock_actual,
+            stock_minimo: p.stock_minimo,
+            stock_critico: p.stock_critico,
+            nivel: p.stock_actual <= p.stock_critico ? 'critico' : 'bajo'
+        }));
+
+        return { alertas };
+    }
+
+    async obtenerResumen(filtros = {}) {
+        const { desde, hasta } = filtros;
+        const where = {};
+
+        if (desde || hasta) {
+            where.fecha_movimiento = {};
+            if (desde) where.fecha_movimiento[Op.gte] = new Date(desde);
+            if (hasta) where.fecha_movimiento[Op.lte] = new Date(hasta);
+        }
+
+        const movimientos = await Movimiento.findAll({
+            where,
+            attributes: ['tipo_movimiento']
+        });
+
+        const resumen = {
+            entrada: movimientos.filter(m => m.tipo_movimiento === 'entrada').length,
+            salida: movimientos.filter(m => m.tipo_movimiento === 'salida').length,
+            ajuste: movimientos.filter(m => m.tipo_movimiento === 'ajuste').length,
+            total: movimientos.length
+        };
+
+        return resumen;
+    }
 }
 
 module.exports = new MovimientoService();

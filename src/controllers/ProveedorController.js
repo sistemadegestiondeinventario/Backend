@@ -1,6 +1,6 @@
 const ProveedorService = require('../services/ProveedorService');
 
-exports.obtenerProveedores = async (req, res) => {
+exports.obtenerTodos = async (req, res) => {
     try {
         const resultado = await ProveedorService.obtenerTodos(req.query);
         res.json(resultado);
@@ -9,7 +9,7 @@ exports.obtenerProveedores = async (req, res) => {
     }
 };
 
-exports.obtenerProveedor = async (req, res) => {
+exports.obtenerPorId = async (req, res) => {
     try {
         const proveedor = await ProveedorService.obtenerPorId(req.params.id);
         res.json(proveedor);
@@ -18,7 +18,26 @@ exports.obtenerProveedor = async (req, res) => {
     }
 };
 
-exports.crearProveedor = async (req, res) => {
+exports.obtenerProductosPorProveedor = async (req, res) => {
+    try {
+        const proveedor = await ProveedorService.obtenerPorId(req.params.id);
+        // Obtener productos del proveedor
+        const { Producto } = require('../models');
+        const productos = await Producto.findAll({ 
+            where: { proveedor_id: req.params.id },
+            order: [['nombre', 'ASC']]
+        });
+        res.json({ 
+            proveedor: proveedor,
+            productos: productos,
+            total: productos.length 
+        });
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
+
+exports.crear = async (req, res) => {
     try {
         const proveedor = await ProveedorService.crear(req.body);
         res.status(201).json(proveedor);
@@ -27,7 +46,7 @@ exports.crearProveedor = async (req, res) => {
     }
 };
 
-exports.actualizarProveedor = async (req, res) => {
+exports.actualizar = async (req, res) => {
     try {
         const proveedor = await ProveedorService.actualizar(req.params.id, req.body);
         res.json(proveedor);
@@ -36,7 +55,7 @@ exports.actualizarProveedor = async (req, res) => {
     }
 };
 
-exports.desactivarProveedor = async (req, res) => {
+exports.eliminar = async (req, res) => {
     try {
         const resultado = await ProveedorService.eliminar(req.params.id);
         res.json(resultado);
