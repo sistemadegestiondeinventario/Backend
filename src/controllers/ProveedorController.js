@@ -1,4 +1,5 @@
 const ProveedorService = require('../services/ProveedorService');
+const { Producto } = require('../models');
 
 exports.obtenerTodos = async (req, res) => {
     try {
@@ -22,7 +23,6 @@ exports.obtenerProductosPorProveedor = async (req, res) => {
     try {
         const proveedor = await ProveedorService.obtenerPorId(req.params.id);
         // Obtener productos del proveedor
-        const { Producto } = require('../models');
         const productos = await Producto.findAll({ 
             where: { proveedor_id: req.params.id },
             order: [['nombre', 'ASC']]
