@@ -14,10 +14,19 @@ exports.registrarUsuario = exports.registrar;
 
 exports.login = async (req, res) => {
     try {
+        console.log('🔐 Intentando login:', { email: req.body.email });
         const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email y password requeridos' });
+        }
+        
+        console.log('🔍 Buscando usuario...');
         const resultado = await UsuarioService.login(email, password);
+        console.log('✅ Login exitoso:', { id: resultado.usuario.id, email: resultado.usuario.email });
         res.json(resultado);
     } catch (error) {
+        console.error('❌ Error en login:', error.message);
         res.status(401).json({ error: error.message });
     }
 };

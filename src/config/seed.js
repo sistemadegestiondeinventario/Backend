@@ -3,21 +3,29 @@ const bcrypt = require('bcrypt');
 
 async function inicializarDatos() {
     try {
-        // Verificar si ya existen datos ANTES de sincronizar
+        // Sincronizar base de datos primero (sin force)
+        console.log('🔄 Sincronizando base de datos...');
+        await sequelize.sync({ force: false, alter: false });
+
+        // Verificar si existen usuarios
         const usuariosCount = await Usuario.count();
         
-        // Si no hay datos, usamos force: true para limpiar y recrear
-        const forceSync = usuariosCount === 0;
-
-        // Sincronizar base de datos
-        console.log('🔄 Sincronizando base de datos...');
-        await sequelize.sync({ force: forceSync });
-
-        // Si ya existen datos después de sincronizar, no volver a crearlos
-        const usuariosCountAfterSync = await Usuario.count();
-        if (usuariosCountAfterSync > 0) {
+        // Si ya hay usuarios, salir sin hacer nada
+        if (usuariosCount > 0) {
             console.log('✅ Base de datos ya contiene datos. Saltando inicialización.');
             return;
+        }
+
+        // Si no hay usuarios pero hay otras tablas con datos, probablemente hay inconsistencias
+        // En ese caso, vamos a truncar todo y empezar de nuevo
+        const categoriasCount = await Categoria.count();
+        const productosCount = await Producto.count();
+        const proveedoresCount = await Proveedor.count();
+        const movimientosCount = await Movimiento.count();
+        
+        if (categoriasCount > 0 || productosCount > 0 || proveedoresCount > 0 || movimientosCount > 0) {
+            console.log('⚠️  Encontradas tablas con datos pero sin usuarios. Limpiando...');
+            await sequelize.truncate({ cascade: true });
         }
 
         console.log('📝 Creando datos de ejemplo...');
