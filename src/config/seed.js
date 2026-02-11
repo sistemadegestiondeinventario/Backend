@@ -3,15 +3,29 @@ const bcrypt = require('bcrypt');
 
 async function inicializarDatos() {
     try {
-        // Sincronizar base de datos
+        // Sincronizar base de datos primero (sin force)
         console.log('🔄 Sincronizando base de datos...');
-        await sequelize.sync({ force: false }); // force: true solo si quieres eliminar y recrear
+        await sequelize.sync({ force: false, alter: false });
 
-        // Verificar si ya existen datos
+        // Verificar si existen usuarios
         const usuariosCount = await Usuario.count();
+        
+        // Si ya hay usuarios, salir sin hacer nada
         if (usuariosCount > 0) {
             console.log('✅ Base de datos ya contiene datos. Saltando inicialización.');
             return;
+        }
+
+        // Si no hay usuarios pero hay otras tablas con datos, probablemente hay inconsistencias
+        // En ese caso, vamos a truncar todo y empezar de nuevo
+        const categoriasCount = await Categoria.count();
+        const productosCount = await Producto.count();
+        const proveedoresCount = await Proveedor.count();
+        const movimientosCount = await Movimiento.count();
+        
+        if (categoriasCount > 0 || productosCount > 0 || proveedoresCount > 0 || movimientosCount > 0) {
+            console.log('⚠️  Encontradas tablas con datos pero sin usuarios. Limpiando...');
+            await sequelize.truncate({ cascade: true });
         }
 
         console.log('📝 Creando datos de ejemplo...');
@@ -24,12 +38,20 @@ async function inicializarDatos() {
             rol: 'administrador'
         });
 
+        if (!usuario1 || !usuario1.id) {
+            throw new Error('No se pudo crear usuario1 correctamente');
+        }
+
         const usuario2 = await Usuario.create({
             nombre: 'Juan Encargado',
             email: 'juan@inventario.com',
             password: 'juan123',
             rol: 'encargado'
         });
+
+        if (!usuario2 || !usuario2.id) {
+            throw new Error('No se pudo crear usuario2 correctamente');
+        }
 
         const usuario3 = await Usuario.create({
             nombre: 'Carlos Consultor',
@@ -38,7 +60,11 @@ async function inicializarDatos() {
             rol: 'consultor'
         });
 
-        console.log('✅ Usuarios creados');
+        if (!usuario3 || !usuario3.id) {
+            throw new Error('No se pudo crear usuario3 correctamente');
+        }
+
+        console.log(`✅ Usuarios creados (IDs: ${usuario1.id}, ${usuario2.id}, ${usuario3.id})`);
 
         // Crear categorías
         const categoria1 = await Categoria.create({

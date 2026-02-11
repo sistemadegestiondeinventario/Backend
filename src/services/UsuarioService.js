@@ -33,9 +33,14 @@ class UsuarioService {
             throw new Error('Credenciales inválidas');
         }
 
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            throw new Error('JWT_SECRET no configurado');
+        }
+
         const token = jwt.sign(
-            { id: usuario.id, email: usuario.email },
-            process.env.JWT_SECRET || 'tu_clave_secreta',
+            { id: usuario.id, email: usuario.email, rol: usuario.rol },
+            secret,
             { expiresIn: '24h' }
         );
 
@@ -43,7 +48,8 @@ class UsuarioService {
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
-                email: usuario.email
+                email: usuario.email,
+                rol: usuario.rol
             },
             token
         };

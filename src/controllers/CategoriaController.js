@@ -45,4 +45,13 @@ exports.eliminar = async (req, res) => {
     }
 };
 
+exports.obtenerProductosPorCategoria = async (req, res) => {
+    try {
+        const categoria = await CategoriaService.obtenerPorId(req.params.id);
+        res.json(categoria.productos);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
+
 module.exports = exports;

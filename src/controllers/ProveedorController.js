@@ -1,4 +1,5 @@
 const ProveedorService = require('../services/ProveedorService');
+const { Producto } = require('../models');
 
 exports.obtenerTodos = async (req, res) => {
     try {
@@ -13,6 +14,24 @@ exports.obtenerPorId = async (req, res) => {
     try {
         const proveedor = await ProveedorService.obtenerPorId(req.params.id);
         res.json(proveedor);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
+
+exports.obtenerProductosPorProveedor = async (req, res) => {
+    try {
+        const proveedor = await ProveedorService.obtenerPorId(req.params.id);
+        // Obtener productos del proveedor
+        const productos = await Producto.findAll({ 
+            where: { proveedor_id: req.params.id },
+            order: [['nombre', 'ASC']]
+        });
+        res.json({ 
+            proveedor: proveedor,
+            productos: productos,
+            total: productos.length 
+        });
     } catch (error) {
         res.status(404).json({ error: error.message });
     }

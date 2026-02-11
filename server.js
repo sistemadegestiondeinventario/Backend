@@ -1,6 +1,7 @@
 require('dotenv').config();
 const app = require('./src/app');
-const { sequelize } = require('./src/models');
+const sequelize = require('./src/config/database');
+const inicializarDatos = require('./src/config/seed');
 
 const PORT = process.env.PORT || 5000;
 
@@ -12,6 +13,9 @@ async function start() {
     // Sincronizar tablas (no forzar en producción)
     await sequelize.sync();
     console.log('Modelos sincronizados');
+
+    // Inicializar datos de ejemplo si no existen
+    await inicializarDatos();
 
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);

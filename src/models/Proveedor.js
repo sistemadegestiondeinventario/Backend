@@ -8,7 +8,7 @@ const Proveedor = sequelize.define('Proveedor', {
         autoIncrement: true
     },
     nombre: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     contacto: {
@@ -36,7 +36,7 @@ const Proveedor = sequelize.define('Proveedor', {
         unique: true
     },
     condiciones_pago: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(150),
         allowNull: true
     },
     activo: {

@@ -1,4 +1,4 @@
-const { Producto, Categoria, Proveedor } = require('../models');
+const { Producto, Categoria, Proveedor, Movimiento, Usuario } = require('../models');
 const { Op } = require('sequelize');
 
 class ProductoService {
@@ -90,6 +90,93 @@ class ProductoService {
 
         await producto.update({ activo: false });
         return { mensaje: 'Producto eliminado correctamente' };
+    }
+
+    async obtenerAlertasStock() {
+        const productos = await Producto.findAll({
+            include: [
+                { model: Categoria, as: 'categoria', attributes: ['id', 'nombre'] },
+                { model: Proveedor, as: 'proveedor', attributes: ['id', 'nombre'] }
+            ],
+            where: { activo: true },
+            raw: false
+        });
+
+        const alertas = {
+            critico: [],
+            minimo: [],
+            normal: []
+        };
+
+        productos.forEach(producto => {
+            if (producto.stock_actual <= producto.stock_critico) {
+                alertas.critico.push({
+                    id: producto.id,
+                    codigo: producto.codigo,
+                    nombre: producto.nombre,
+                    stock_actual: producto.stock_actual,
+                    stock_critico: producto.stock_critico,
+                    categoria: producto.categoria.nombre,
+                    proveedor: producto.proveedor.nombre
+                });
+            } else if (producto.stock_actual <= producto.stock_minimo) {
+                alertas.minimo.push({
+                    id: producto.id,
+                    codigo: producto.codigo,
+                    nombre: producto.nombre,
+                    stock_actual: producto.stock_actual,
+                    stock_minimo: producto.stock_minimo,
+                    categoria: producto.categoria.nombre,
+                    proveedor: producto.proveedor.nombre
+                });
+            } else {
+                alertas.normal.push({
+                    id: producto.id,
+                    codigo: producto.codigo,
+                    nombre: producto.nombre,
+                    stock_actual: producto.stock_actual
+                });
+            }
+        });
+
+        return alertas;
+    }
+
+    async obtenerHistorialProducto(producto_id, filtros = {}) {
+        const { pagina = 1, limite = 20, tipo_movimiento } = filtros;
+        const offset = (pagina - 1) * limite;
+
+        const producto = await Producto.findByPk(producto_id);
+        if (!producto) {
+            throw new Error('Producto no encontrado');
+        }
+
+        const where = { producto_id };
+        if (tipo_movimiento) where.tipo_movimiento = tipo_movimiento;
+
+        const { count, rows } = await Movimiento.findAndCountAll({
+            where,
+            include: [
+                { model: Usuario, as: 'usuario', attributes: ['id', 'nombre', 'email'] }
+            ],
+            offset,
+            limit: parseInt(limite),
+            order: [['fecha_movimiento', 'DESC']]
+        });
+
+        return {
+            producto: {
+                id: producto.id,
+                codigo: producto.codigo,
+                nombre: producto.nombre,
+                stock_actual: producto.stock_actual
+            },
+            movimientos: rows,
+            total: count,
+            pagina: parseInt(pagina),
+            limite: parseInt(limite),
+            totalPaginas: Math.ceil(count / limite)
+        };
     }
 }
 
