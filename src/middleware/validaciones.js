@@ -26,7 +26,8 @@ const validarMovimiento = [
     body('producto_id').isInt().withMessage('Producto es requerido'),
     body('tipo_movimiento').isIn(['entrada', 'salida', 'ajuste']).withMessage('Tipo de movimiento inválido'),
     body('cantidad').isInt({ min: 1 }).withMessage('Cantidad debe ser mayor a 0'),
-    body('usuario_id').isInt().withMessage('Usuario es requerido')
+    body('motivo').optional().isString().withMessage('Motivo debe ser texto'),
+    body('observaciones').optional().isString().withMessage('Observaciones debe ser texto')
 ];
 
 const manejarErroresValidacion = (req, res, next) => {

@@ -3,13 +3,19 @@ const bcrypt = require('bcrypt');
 
 async function inicializarDatos() {
     try {
+        // Verificar si ya existen datos ANTES de sincronizar
+        const usuariosCount = await Usuario.count();
+        
+        // Si no hay datos, usamos force: true para limpiar y recrear
+        const forceSync = usuariosCount === 0;
+
         // Sincronizar base de datos
         console.log('🔄 Sincronizando base de datos...');
-        await sequelize.sync({ force: false }); // force: true solo si quieres eliminar y recrear
+        await sequelize.sync({ force: forceSync });
 
-        // Verificar si ya existen datos
-        const usuariosCount = await Usuario.count();
-        if (usuariosCount > 0) {
+        // Si ya existen datos después de sincronizar, no volver a crearlos
+        const usuariosCountAfterSync = await Usuario.count();
+        if (usuariosCountAfterSync > 0) {
             console.log('✅ Base de datos ya contiene datos. Saltando inicialización.');
             return;
         }
@@ -24,12 +30,20 @@ async function inicializarDatos() {
             rol: 'administrador'
         });
 
+        if (!usuario1 || !usuario1.id) {
+            throw new Error('No se pudo crear usuario1 correctamente');
+        }
+
         const usuario2 = await Usuario.create({
             nombre: 'Juan Encargado',
             email: 'juan@inventario.com',
             password: 'juan123',
             rol: 'encargado'
         });
+
+        if (!usuario2 || !usuario2.id) {
+            throw new Error('No se pudo crear usuario2 correctamente');
+        }
 
         const usuario3 = await Usuario.create({
             nombre: 'Carlos Consultor',
@@ -38,7 +52,11 @@ async function inicializarDatos() {
             rol: 'consultor'
         });
 
-        console.log('✅ Usuarios creados');
+        if (!usuario3 || !usuario3.id) {
+            throw new Error('No se pudo crear usuario3 correctamente');
+        }
+
+        console.log(`✅ Usuarios creados (IDs: ${usuario1.id}, ${usuario2.id}, ${usuario3.id})`);
 
         // Crear categorías
         const categoria1 = await Categoria.create({
