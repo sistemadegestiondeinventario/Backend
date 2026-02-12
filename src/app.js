@@ -63,6 +63,10 @@ const ReportController = require('./controllers/ReportController');
 // Rutas de autenticación (registro / login - públicas, sin API_KEY ni JWT)
 app.post('/api/usuarios/registro', UsuarioController.registrar);
 app.post('/api/usuarios/login', UsuarioController.login);
+app.get('/api/usuarios', UsuarioController.obtenerTodos);
+app.get('/api/usuarios/:id', UsuarioController.obtenerPorId);
+app.put('/api/usuarios/:id', UsuarioController.actualizar);
+app.delete('/api/usuarios/:id', UsuarioController.eliminar);
 
 // ============================================
 // APLICAR PROTECCIÓN DE API_KEY A TODAS LAS OTRAS RUTAS DE API
