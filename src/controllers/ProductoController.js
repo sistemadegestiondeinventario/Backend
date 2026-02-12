@@ -1,6 +1,6 @@
 const ProductoService = require('../services/ProductoService');
 
-exports.obtenerProductos = async (req, res) => {
+exports.obtenerTodos = async (req, res) => {
     try {
         const resultado = await ProductoService.obtenerTodos(req.query);
         res.json(resultado);
@@ -9,7 +9,7 @@ exports.obtenerProductos = async (req, res) => {
     }
 };
 
-exports.obtenerProducto = async (req, res) => {
+exports.obtenerPorId = async (req, res) => {
     try {
         const producto = await ProductoService.obtenerPorId(req.params.id);
         res.json(producto);
@@ -18,7 +18,7 @@ exports.obtenerProducto = async (req, res) => {
     }
 };
 
-exports.crearProducto = async (req, res) => {
+exports.crear = async (req, res) => {
     try {
         const producto = await ProductoService.crear(req.body);
         res.status(201).json(producto);
@@ -27,7 +27,7 @@ exports.crearProducto = async (req, res) => {
     }
 };
 
-exports.actualizarProducto = async (req, res) => {
+exports.actualizar = async (req, res) => {
     try {
         const producto = await ProductoService.actualizar(req.params.id, req.body);
         res.json(producto);
@@ -36,7 +36,7 @@ exports.actualizarProducto = async (req, res) => {
     }
 };
 
-exports.eliminarProducto = async (req, res) => {
+exports.eliminar = async (req, res) => {
     try {
         const resultado = await ProductoService.eliminar(req.params.id);
         res.json(resultado);

@@ -133,9 +133,9 @@ cp .env.example .env
 # Editar .env con tus credenciales de base de datos
 ```
 
-### 4. Crear base de datos
+### 4. Levantar docker-compose
 ```bash
-createdb inventario_db
+docker-compose up
 ```
 
 ### 5. Ejecutar migraciones/sincronizar modelos

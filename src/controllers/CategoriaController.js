@@ -1,6 +1,6 @@
 const CategoriaService = require('../services/CategoriaService');
 
-exports.obtenerCategorias = async (req, res) => {
+exports.obtenerTodos = async (req, res) => {
     try {
         const categorias = await CategoriaService.obtenerTodos();
         res.json(categorias);
@@ -9,7 +9,7 @@ exports.obtenerCategorias = async (req, res) => {
     }
 };
 
-exports.obtenerCategoria = async (req, res) => {
+exports.obtenerPorId = async (req, res) => {
     try {
         const categoria = await CategoriaService.obtenerPorId(req.params.id);
         res.json(categoria);
@@ -18,7 +18,7 @@ exports.obtenerCategoria = async (req, res) => {
     }
 };
 
-exports.crearCategoria = async (req, res) => {
+exports.crear = async (req, res) => {
     try {
         const categoria = await CategoriaService.crear(req.body);
         res.status(201).json(categoria);
@@ -27,7 +27,7 @@ exports.crearCategoria = async (req, res) => {
     }
 };
 
-exports.actualizarCategoria = async (req, res) => {
+exports.actualizar = async (req, res) => {
     try {
         const categoria = await CategoriaService.actualizar(req.params.id, req.body);
         res.json(categoria);
@@ -36,7 +36,7 @@ exports.actualizarCategoria = async (req, res) => {
     }
 };
 
-exports.eliminarCategoria = async (req, res) => {
+exports.eliminar = async (req, res) => {
     try {
         const resultado = await CategoriaService.eliminar(req.params.id);
         res.json(resultado);
