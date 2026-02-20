@@ -8,6 +8,14 @@ if (process.env.DATABASE_URL) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        // Render/Postgres uses certificates that may not be verifiable from some runtimes;
+        // disabling rejectUnauthorized avoids ECONNRESET/TLS errors while still using SSL.
+        rejectUnauthorized: false,
+      },
+    },
   });
 } else if (process.env.DB_NAME && process.env.DB_USER) {
   // Standard Postgres via env vars
@@ -20,6 +28,9 @@ if (process.env.DATABASE_URL) {
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
+      dialectOptions: {
+        ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
+      },
     }
   );
 } else {

@@ -20,7 +20,13 @@ const {
 } = require('./middleware/validaciones');
 
 // Middlewares globales
-app.use(cors());
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -63,10 +69,6 @@ const ReportController = require('./controllers/ReportController');
 // Rutas de autenticación (registro / login - públicas, sin API_KEY ni JWT)
 app.post('/api/usuarios/registro', UsuarioController.registrar);
 app.post('/api/usuarios/login', UsuarioController.login);
-app.get('/api/usuarios', UsuarioController.obtenerTodos);
-app.get('/api/usuarios/:id', UsuarioController.obtenerPorId);
-app.put('/api/usuarios/:id', UsuarioController.actualizar);
-app.delete('/api/usuarios/:id', UsuarioController.eliminar);
 
 // ============================================
 // APLICAR PROTECCIÓN DE API_KEY A TODAS LAS OTRAS RUTAS DE API
@@ -77,9 +79,10 @@ app.use('/api', verificarApiKey);
 // RUTAS PROTEGIDAS (REQUIEREN API_KEY + JWT)
 // ============================================
 
-// Rutas básicas de usuarios
+// Rutas básicas de usuarios (protegidas)
 app.get('/api/usuarios', autenticar, verificarRol('administrador'), UsuarioController.obtenerUsuarios);
 app.get('/api/usuarios/perfil', autenticar, UsuarioController.obtenerPerfil);
+app.get('/api/usuarios/:id', autenticar, UsuarioController.obtenerPorId);
 app.put('/api/usuarios/perfil', autenticar, UsuarioController.actualizarUsuario);
 app.put('/api/usuarios/:id', autenticar, UsuarioController.actualizarUsuario);
 app.patch('/api/usuarios/:id/desactivar', autenticar, verificarRol('administrador'), UsuarioController.desactivarUsuario);
