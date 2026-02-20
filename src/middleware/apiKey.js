@@ -1,19 +1,34 @@
 /**
- * Middleware para validar API_KEY
- * Protege todas las rutas contra acceso no autorizado
+ * Middleware para validar API_KEY (OPCIONAL si hay JWT)
+ * Si el usuario tiene JWT válido, no necesita API_KEY
  */
+
+const jwt = require('jsonwebtoken');
 
 const verificarApiKey = (req, res, next) => {
     try {
-        // Obtener API_KEY del header o query params
+        // Verificar si hay JWT válido en el header Authorization
+        const token = req.headers['authorization']?.split(' ')[1];
+        
+        if (token) {
+            try {
+                jwt.verify(token, process.env.JWT_SECRET);
+                // JWT válido, no necesita API_KEY
+                return next();
+            } catch (error) {
+                // JWT inválido o expirado, continuar a verificar API_KEY
+            }
+        }
+
+        // Si no hay JWT válido, verificar API_KEY (para rutas públicas como login/registro)
         const apiKeyHeader = req.headers['x-api-key'];
         const apiKeyQuery = req.query['api_key'];
         const apiKey = apiKeyHeader || apiKeyQuery;
 
         if (!apiKey) {
             return res.status(401).json({
-                error: 'API_KEY requerida',
-                mensaje: 'Se requiere proporcionar x-api-key en headers o api_key en query params'
+                error: 'API_KEY o autenticación requerida',
+                mensaje: 'Proporciona x-api-key en headers o autentica con JWT'
             });
         }
 
@@ -38,7 +53,7 @@ const verificarApiKey = (req, res, next) => {
         next();
     } catch (error) {
         return res.status(500).json({
-            error: 'Error validando API_KEY: ' + error.message
+            error: 'Error validando autenticación: ' + error.message
         });
     }
 };
